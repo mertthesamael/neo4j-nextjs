@@ -38,7 +38,7 @@ export async function write(cypher:any, params = {}) {
     try {
       // 2. Execute a Cypher Statement
       const res = await session.executeWrite((tx:any) => tx.run(cypher, params))
-  
+        console.log(res)
       // 3. Process the Results
       const values = res.records.map((record:any) => record.toObject())
   
