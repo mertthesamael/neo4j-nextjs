@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const generateRandomString = (length:number) => {
+export const generateRandomString = (length: number) => {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let token = '';
 
@@ -15,4 +15,15 @@ export const generateRandomString = (length:number) => {
   }
 
   return token;
+}
+
+
+
+export const fakeLoader = async (delay: number) => {
+  return await new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve('Resolved')
+    }, delay);
+  })
+
 }

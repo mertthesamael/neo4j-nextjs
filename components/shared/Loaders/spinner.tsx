@@ -13,8 +13,7 @@ const Spinner: FC<SpinnerProps> = ({ className }) => {
     height="42"
     viewBox="0 0 24 24"
     fill="none"
-    style={{stroke:"url(#icon-gradient)"}}
-    // stroke='currentColor'
+    stroke='currentColor'
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"

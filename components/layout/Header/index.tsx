@@ -14,11 +14,11 @@ const Header: FC<HeaderProps> = async ({ }) => {
   const session = await getSession()
   //console.log(session)
   return (
-    <header className='w-full max-w-[1440px]  flex items-center justify-between h-[90px] sticky top-0 z-20 backdrop-blur-md'>
-      <div className='h-full flex items-center'>
-        <h1 className='text-2xl font-bold text-primary'>Jokedd</h1>
+    <header className='w-full px-6 bg-background left-0 flex items-center justify-between h-[70px] absolute top-0 z-20 backdrop-blur-md'>
+      <div className='h-full flex items-center bg-background'>
+        <h1 className='text-xl font-bold text-primary bg-background'>Jokedd</h1>
       </div>
-      <nav>
+      <nav className='bg-background'>
         {session?.user && <UserArea user={await getUserByID(session.user.email as string)} />}
       </nav>
     </header>

@@ -21,12 +21,12 @@ export async function middleware(req: NextRequest) {
   const path = `${url.pathname}${searchParams.length > 0 ? `?${searchParams}` : ""}`;
   console.log(path)
   if (session) {
-    console.log(session.user)
+    //console.log(session.user)
     if (path === '/') {
       return NextResponse.redirect(new URL("/app", req.url));
     }
   }
-  if (!session && path === '/app') {
+  if (!session && path !== '/') {
     return NextResponse.redirect(new URL("/", req.url));
   }
   

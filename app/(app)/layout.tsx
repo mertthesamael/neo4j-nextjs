@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import "../globals.css";
-import MainContainer from "@/components/layout/MainContainer";
-import Header from "@/components/layout/Header";
-import { GeistSans } from 'geist/font/sans';
-import Providers from "../providers";
+import Sidebar from "@/components/layout/app-layout/Sidebar";
+import MainContainerApp from "@/components/layout/app-layout/MainContainerApp";
 
 
 export const metadata: Metadata = {
@@ -17,15 +14,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={GeistSans.className}>
-        <Providers>
-          <Header />
-          <MainContainer>
-            {children}
-          </MainContainer>
-        </Providers>
-      </body>
-    </html>
+    <MainContainerApp>
+      <Sidebar />
+      {children}
+    </MainContainerApp>
   );
 }
