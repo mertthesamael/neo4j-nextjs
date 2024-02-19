@@ -1,8 +1,10 @@
 "use server"
-import { write } from "@/lib/neo4j"
+import { getSession } from "@/lib/auth"
+import { read, write } from "@/lib/neo4j"
 import { generateRandomString } from "@/lib/utils"
 import { TUser } from "@/types/TUser"
 import { Node } from "neo4j-driver"
+import { revalidatePath, revalidateTag } from "next/cache"
 
 
 export const createUser = async (userName: string, password: string) => {
@@ -24,12 +26,12 @@ export const createUser = async (userName: string, password: string) => {
         `)
         const res = await getUserByID(randomID)
         if (res.error) {
-            throw new Error(typeof res.error === 'string'?res.error:'Unexpected Error')
+            throw new Error(typeof res.error === 'string' ? res.error : 'Unexpected Error')
         }
         return { status: 'ok', data: res.data as TUser }
     } catch (err) {
         console.log(err)
-        return { status: 'error', error: err instanceof Error?err.message:err }
+        return { status: 'error', error: err instanceof Error ? err.message : err }
     }
 }
 
@@ -44,13 +46,13 @@ export const getUserByID = async (userID: string) => {
         const user: TUser = {
             userID: userProperties.userID,
             user_name: userProperties.user_name,
-            created_at: new Date(userProperties.created_at).toISOString(),
+            created_at: userProperties.created_at,
             user_img: userProperties.user_img
         }
         return { status: 'ok', data: user }
     } catch (err) {
         console.log(err)
-        return { status: 'error', error: err instanceof Error?err.message:err }
+        return { status: 'error', error: err instanceof Error ? err.message : err }
     }
 }
 export const getUserByUsername = async (user_name: string) => {
@@ -66,12 +68,12 @@ export const getUserByUsername = async (user_name: string) => {
             user_name: userProperties.user_name,
             created_at: new Date(userProperties.created_at).toISOString(),
             user_img: userProperties.user_img,
-            password:userProperties.password
+            password: userProperties.password
         }
         return { status: 'ok', data: user }
     } catch (err) {
         console.log(err)
-        return { status: 'error', error: err instanceof Error?err.message:err }
+        return { status: 'error', error: err instanceof Error ? err.message : err }
     }
 }
 export const getUsers = async () => {
@@ -86,4 +88,41 @@ export const getUsers = async () => {
         console.log(err)
         return err
     }
+}
+
+export const likeJoke = async (postID: string) => {
+    const session = await getSession()
+    try {
+        if (!session) {
+            throw new Error("Not Authenticated")
+        }
+        const res = await write(`
+        MATCH (u:user {userID: '${session.user.id}'})
+        MATCH (p:post {postID: '${postID}'})
+        CREATE (u)-[:LIKES]->(p)
+        `)
+       
+        revalidatePath('get-all-jokes')
+        return { status: 'ok', data: true }
+    } catch (err) {
+        return { status: 'error', error: 'err' }
+    }
+}
+
+export const isJokeLiked = async (userName: string, postID: string) => {
+
+    try {
+        const res = await read(`
+        MATCH (u:user {user_name: '${userName}'})-[r:LIKES]->(p:post {postID: '${postID}'})
+RETURN r
+        `)
+        if (!res[0]) {
+            return false
+        }
+        return true
+    } catch (err) {
+        console.log(err)
+        return err
+    }
+
 }
