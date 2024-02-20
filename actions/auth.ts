@@ -16,7 +16,7 @@ export const createUser = async (userName: string, password: string) => {
     const randomID = generateRandomString(12)
     try {
     if(userName.includes(`'`) || userName.includes(`"`) || userName.length === 0){
-        return new Error("Oppsieeeees")
+        throw new Error("Oppsieeeees")
     }
         await write(`
         CREATE (u:user {
