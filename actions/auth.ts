@@ -172,13 +172,14 @@ export const createJoke = async (buildup?: string, punchline?:string) => {
         if(buildup.length > 95 || punchline.length > 95){
             throw new Error("Max character size is 95.")
         }
+        const validatedBuildup = ``
         const res = await write(`
         CREATE (p:post {
             postID: '${randomID}',
             userID: '${session.user.id}',
             created_at: ${formattedDate},
-            buildup: '${buildup}',
-            punchline:"${punchline}"
+            buildup: "${buildup.replace(/"/g, '\'')}",
+            punchline:"${punchline.replace(/"/g, '\'')}"
         })
         `)
         revalidatePath('get-all-jokes')
