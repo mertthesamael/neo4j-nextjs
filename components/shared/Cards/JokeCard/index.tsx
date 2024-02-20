@@ -3,7 +3,7 @@ import '@/style/post-card.css'
 import { TJoke } from '@/types/TJoke'
 import JokeCardUser from './joke-card-user'
 import JokeCardAction from './joke-card-action'
-import { getUserByID } from '@/actions/auth'
+import { getUserByID, isJokeLiked } from '@/actions/auth'
 import { getJokeLikes } from '@/actions/jokes'
 
 type PostCardProps = {
@@ -13,7 +13,9 @@ type PostCardProps = {
 const PostCard: FC<PostCardProps> = async ({ joke }) => {
     const { data: creator } = await getUserByID(joke.userID);
     const { data: likes } = await getJokeLikes(joke.postID);
-    if (!creator || !likes) {
+    const isLiked = await isJokeLiked(joke.postID)
+    console.log(isLiked)
+    if (!creator) {
         return null
     }
     return (
@@ -25,7 +27,7 @@ const PostCard: FC<PostCardProps> = async ({ joke }) => {
                     </div>
                     <div className='text-primary flex justify-between w-full items-center'>
                         <JokeCardUser author={creator} type='front' />
-                        <JokeCardAction postID={joke.postID} likes={likes} type='front' />
+                        <JokeCardAction isLiked={isLiked} postID={joke.postID} likes={likes} type='front' />
                     </div>
                 </div>
                 <div className="flip-card-back flex flex-col">
@@ -34,7 +36,7 @@ const PostCard: FC<PostCardProps> = async ({ joke }) => {
                     </div>
                     <div className='flex justify-between w-full items-center'>
                         <JokeCardUser author={creator} type='back' />
-                        <JokeCardAction postID={joke.postID} likes={likes} type='back' />
+                        <JokeCardAction isLiked={isLiked} postID={joke.postID} likes={likes} type='back' />
                     </div>
                 </div>
             </div>

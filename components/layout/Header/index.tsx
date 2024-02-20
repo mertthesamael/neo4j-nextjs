@@ -1,8 +1,6 @@
-import AuthButton from '@/components/shared/Buttons/auth-button';
-import { Button } from '@/components/ui/button';
+
 import React, { FC } from 'react'
 import UserArea from './user-area';
-import { getServerSession } from 'next-auth';
 import { getUserByID } from '@/actions/auth';
 import { getSession } from '@/lib/auth';
 

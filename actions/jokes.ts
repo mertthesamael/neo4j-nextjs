@@ -1,5 +1,6 @@
 "use server"
 
+import { getSession } from "@/lib/auth"
 import { read } from "@/lib/neo4j"
 import { TJoke } from "@/types/TJoke"
 import { revalidateTag } from "next/cache"
@@ -12,7 +13,6 @@ export const getJokes = async () => {
         const res = await read(`
         MATCH (p:post)
         RETURN p
-        LIMIT 25
         `)
         const posts : TJoke[] = res.map((el:any) => el.p.properties)
         revalidateTag('get-all-jokes')
@@ -22,6 +22,26 @@ export const getJokes = async () => {
         return {status:'error',error:err}
     }
     
+}
+export const getLikedJokes = async () => {
+    const session = await getSession()
+
+    try {
+        if (!session) {
+            throw new Error("Not Authenticated")
+        }
+        const res = await read(`
+        MATCH (u:user {userID: '${session.user.id}'})-[r:LIKES]->(p:post)
+        RETURN p
+        `)
+        const posts : TJoke[] = res.map((el:any) => el.p.properties)
+        revalidateTag('get-all-jokes')
+        return {status:'ok',data:posts}
+    } catch (err) {
+        console.log(err)
+        return {status:'error',error:err}
+    }
+
 }
 
 export const getJokeLikes = async (postID: string) => {

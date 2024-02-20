@@ -4,7 +4,7 @@ import { read, write } from "@/lib/neo4j"
 import { generateRandomString } from "@/lib/utils"
 import { TUser } from "@/types/TUser"
 import { Node } from "neo4j-driver"
-import { revalidatePath, revalidateTag } from "next/cache"
+import { revalidatePath } from "next/cache"
 
 
 export const createUser = async (userName: string, password: string) => {
@@ -66,7 +66,7 @@ export const getUserByUsername = async (user_name: string) => {
         const user = {
             userID: userProperties.userID,
             user_name: userProperties.user_name,
-            created_at: new Date(userProperties.created_at).toISOString(),
+            created_at: userProperties.created_at,
             user_img: userProperties.user_img,
             password: userProperties.password
         }
@@ -99,30 +99,93 @@ export const likeJoke = async (postID: string) => {
         const res = await write(`
         MATCH (u:user {userID: '${session.user.id}'})
         MATCH (p:post {postID: '${postID}'})
-        CREATE (u)-[:LIKES]->(p)
+        MERGE (u)-[:LIKES]->(p)
         `)
-       
         revalidatePath('get-all-jokes')
         return { status: 'ok', data: true }
     } catch (err) {
+        console.log(err)
+
         return { status: 'error', error: 'err' }
     }
 }
 
-export const isJokeLiked = async (userName: string, postID: string) => {
-
+export const unlikeJoke = async (postID: string) => {
+    const session = await getSession()
     try {
-        const res = await read(`
-        MATCH (u:user {user_name: '${userName}'})-[r:LIKES]->(p:post {postID: '${postID}'})
-RETURN r
-        `)
-        if (!res[0]) {
-            return false
+        if (!session) {
+            throw new Error("Not Authenticated")
         }
-        return true
+        const res = await write(`
+        MATCH (u:user {userID: '${session.user.id}'})-[r:LIKES]->(p:post {postID: '${postID}'})
+        DELETE r
+        `)
+        revalidatePath('get-all-jokes')
+        return { status: 'ok', data: true }
     } catch (err) {
         console.log(err)
-        return err
+
+        return { status: 'error', error: 'err' }
+    }
+}
+export const isJokeLiked = async (postID: string) => {
+    const session = await getSession()
+
+    try {
+        if (!session) {
+            return false
+        }
+        const res = await read(`
+        MATCH (u:user {userID: '${session.user.id}'})-[r:LIKES]->(p:post {postID: '${postID}'})
+        RETURN COUNT(r) > 0 AS alreadyLiked
+        `)
+        const isLiked = res[0]['alreadyLiked']
+        return isLiked
+    } catch (err) {
+        console.log(err)
+        return false
     }
 
 }
+
+
+
+export const createJoke = async (buildup?: string, punchline?:string) => {
+    const date = new Date()
+    var formattedDate =
+        "datetime('" +
+        date.toISOString().slice(0, 19) + // Extracting only the date and time portion, excluding milliseconds and timezone
+        "Z')";
+    const session = await getSession()
+    const randomID = generateRandomString(12)
+
+    try {
+        if (!session) {
+            throw new Error("Not Authenticated")
+        }
+        if(!buildup||!punchline){
+            throw new Error("Please fill both buildup and punchline inputs")
+        }
+        if(buildup.length === 0 || punchline.length === 0){
+            throw new Error("Please fill both buildup and punchline inputs")
+        }
+        if(buildup.length > 95 || punchline.length > 95){
+            throw new Error("Max character size is 95.")
+        }
+        const res = await write(`
+        CREATE (p:post {
+            postID: '${randomID}',
+            userID: '${session.user.id}',
+            created_at: ${formattedDate},
+            buildup: '${buildup}',
+            punchline:"${punchline}"
+        })
+        `)
+        revalidatePath('get-all-jokes')
+        return { status: 'ok', data: res.data as TUser }
+    } catch (err) {
+        console.log(err)
+        return { status: 'error', error: err instanceof Error ? err.message : err }
+    }
+}
+
