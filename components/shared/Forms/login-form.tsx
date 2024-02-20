@@ -48,7 +48,7 @@ export function LoginForm() {
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="username" >Username</Label>
-            <Input autoComplete="off" id="username" pattern="[^ ]+" onChange={(e) => setUserName(e.target.value)}  placeholder="merto" />
+            <Input autoComplete="off" id="username" pattern="[^ ]+" onChange={(e) => setUserName(e.target.value)}  placeholder="your username" />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>

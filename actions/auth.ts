@@ -1,7 +1,7 @@
 "use server"
 import { getSession } from "@/lib/auth"
 import { read, write } from "@/lib/neo4j"
-import { generateRandomString } from "@/lib/utils"
+import { generateRandomString, userNameValidation } from "@/lib/utils"
 import { TUser } from "@/types/TUser"
 import { Node } from "neo4j-driver"
 import { revalidatePath } from "next/cache"
@@ -15,9 +15,9 @@ export const createUser = async (userName: string, password: string) => {
         "Z')";
     const randomID = generateRandomString(12)
     try {
-    if(userName.includes(`'`) || userName.includes(`"`) || userName.length === 0){
-        throw new Error("Oppsieeeees")
-    }
+        if(userNameValidation(userName)){
+            throw new Error("Oppsieeeees")
+        }
         await write(`
         CREATE (u:user {
             userID: '${randomID}',
@@ -60,6 +60,9 @@ export const getUserByID = async (userID: string) => {
 }
 export const getUserByUsername = async (user_name: string) => {
     try {
+        if(userNameValidation(user_name)){
+            throw new Error("Oppsieeeees")
+        }
         const res = await write(`
         MATCH (u:user {user_name: '${user_name}'})
         RETURN u
@@ -135,6 +138,9 @@ export const isJokeLiked = async (postID: string) => {
     const session = await getSession()
 
     try {
+        if(userNameValidation(postID)){
+            throw new Error("Oppsieeeees")
+        }
         if (!session) {
             return false
         }

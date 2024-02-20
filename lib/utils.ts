@@ -27,3 +27,12 @@ export const fakeLoader = async (delay: number) => {
   })
 
 }
+
+
+export const userNameValidation = (userName:string) => {
+  // Check if username is empty or contains invalid characters
+  if (!userName || /[ '"\t\r\n]/.test(userName)) {
+    return true; // Invalid username
+  }
+  return false; // Valid username
+}

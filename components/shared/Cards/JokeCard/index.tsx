@@ -14,7 +14,6 @@ const PostCard: FC<PostCardProps> = async ({ joke }) => {
     const { data: creator } = await getUserByID(joke.userID);
     const { data: likes } = await getJokeLikes(joke.postID);
     const isLiked = await isJokeLiked(joke.postID)
-    console.log(isLiked)
     if (!creator) {
         return null
     }

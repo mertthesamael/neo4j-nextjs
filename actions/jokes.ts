@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/auth"
 import { read } from "@/lib/neo4j"
+import { userNameValidation } from "@/lib/utils"
 import { TJoke } from "@/types/TJoke"
 import { revalidateTag } from "next/cache"
 
@@ -51,6 +52,9 @@ export const getJokeLikes = async (postID: string) => {
         MATCH (:post {postID: '${postID}'})<-[r:LIKES]-()
         RETURN COUNT(r) AS likeCount
         `)
+        if(userNameValidation(postID)){
+            throw new Error("Oppsieeeees")
+        }
         if (!res[0]) {
             throw new Error("Error")
         }
