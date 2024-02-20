@@ -56,12 +56,12 @@ export function SignupForm() {
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="username">Username</Label>
-            <Input pattern="[^ ]+" autoComplete="off" id="username" onChange={(e) => setUserName(e.target.value)} placeholder="merto" />
+            <Input minLength={2} pattern="[^ ]+" autoComplete="off" id="username" onChange={(e) => setUserName(e.target.value)} placeholder="merto" />
             <span className="text-xs text-foreground">No spaces.</span>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" name="password" type="password" />
+            <Input required id="password" name="password" type="password" />
           </div>
         </CardContent>
         <CardFooter>
